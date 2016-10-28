@@ -1,4 +1,5 @@
 require 'pathname'
+require 'puppet/parameter/boolean'
 
 Puppet::Type.newtype(:apt_key) do
 
@@ -20,9 +21,14 @@ Puppet::Type.newtype(:apt_key) do
   ensurable
 
   validate do
+    if self[:refresh] == true && self[:ensure] == :absent
+      fail('ensure => absent and refresh => true are mutually exclusive')
+    end
+
     if self[:content] and self[:source]
       fail('The properties content and source are mutually exclusive.')
     end
+
     if self[:id].length < 40 
       warning('The id should be a full fingerprint (40 characters), see README.')
     end 
@@ -67,6 +73,10 @@ Puppet::Type.newtype(:apt_key) do
 
   newparam(:options) do
     desc 'Additional options to pass to apt-key\'s --keyserver-options.'
+  end
+
+  newparam(:refresh, :boolean => true, :parent => Puppet::Parameter::Boolean) do
+    desc 'When true, recreate an existing expired key'
   end
 
   newproperty(:fingerprint) do

@@ -25,6 +25,10 @@ describe Puppet::Type::type(:apt_key) do
     it 'content is not set' do
       expect(resource[:content]).to eq nil
     end
+
+    it 'refresh is not set' do
+      expect(resource[:refresh]).to eq nil
+    end
   end
 
   context 'with a lowercase 32bit key id' do
@@ -112,6 +116,15 @@ describe Puppet::Type::type(:apt_key) do
         :source  => 'http://apt.puppetlabs.com/pubkey.gpg',
         :content => 'Completely invalid as a GPG key'
       )}.to raise_error(/content and source are mutually exclusive/)
+    end
+
+    it 'raises an error if refresh => true and ensure => absent' do
+      expect { Puppet::Type.type(:apt_key).new(
+        :id      => 'EF8D349F',
+        :source  => 'http://apt.puppetlabs.com/pubkey.gpg',
+        :ensure  => :absent,
+        :refresh => :true
+      )}.to raise_error(/ensure => absent and refresh => true are mutually exclusive/)
     end
 
     it 'raises an error if a weird length key is used' do

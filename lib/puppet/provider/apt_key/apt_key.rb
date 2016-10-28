@@ -170,7 +170,8 @@ Puppet::Type.type(:apt_key).provide(:apt_key) do
   end
 
   def exists?
-    @property_hash[:ensure] == :present
+    # report expired keys as non-existing when refresh => true
+    @property_hash[:ensure] == :present  && !(resource[:refresh] && @property_hash[:expired])
   end
 
   def create

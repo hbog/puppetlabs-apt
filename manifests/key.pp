@@ -11,6 +11,7 @@ define apt::key (
   $key_source  = undef,
   $key_server  = undef,
   $key_options = undef,
+  $refresh     = false,
 ) {
 
   if $key != undef {
@@ -67,6 +68,8 @@ define apt::key (
     validate_string($_options)
   }
 
+  validate_bool($refresh)
+
   case $ensure {
     present: {
       if defined(Anchor["apt_key ${_id} absent"]){
@@ -75,6 +78,7 @@ define apt::key (
 
       if !defined(Anchor["apt_key ${_id} present"]) {
         apt_key { $title:
+          refresh => $refresh,
           ensure  => $ensure,
           id      => $_id,
           source  => $_source,
