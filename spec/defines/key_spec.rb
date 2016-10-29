@@ -75,6 +75,20 @@ describe 'apt::key' do
       end
     end
 
+    describe "ensure => refreshed" do
+
+      let :params do {
+        :ensure  => 'refreshed',
+      } end
+
+      it 'contains the apt_key with refresh => true' do
+        is_expected.to contain_apt_key(title).with({
+          :ensure    => 'present',
+          :refresh   => true,
+        })
+      end
+    end
+
     describe 'set a bunch of things!' do
       let :params do {
         :content => 'GPG key content',
@@ -95,36 +109,6 @@ describe 'apt::key' do
       end
       it 'contains the apt_key present anchor' do
         is_expected.to contain_anchor("apt_key #{title} present")
-      end
-    end
-
-    describe "refresh" do
-      context "with ensure => absent" do
-        let :params do {
-          :ensure  => 'absent',
-          :refresh => true,
-        } end
-
-        it 'contains the apt_key without refresh attribute' do
-          is_expected.to contain_apt_key(title).with({
-            :ensure    => 'absent',
-            :refresh   => nil,
-          })
-        end
-      end
-
-      context "with ensure => present" do
-        let :params do {
-          :ensure  => 'present',
-          :refresh => true,
-        } end
-
-        it 'contains the apt_key with refresh => true' do
-          is_expected.to contain_apt_key(title).with({
-            :ensure    => 'present',
-            :refresh   => true,
-          })
-        end
       end
     end
 
@@ -299,7 +283,7 @@ describe 'apt::key' do
     end
 
     context 'invalid ensure' do
-      %w(foo aabsent absenta apresent presenta).each do |param|
+      %w(foo aabsent absenta apresent presenta refresh arefreshed refresheda).each do |param|
         let :params do
           {
             :ensure => param,
@@ -311,18 +295,6 @@ describe 'apt::key' do
       end
     end
 
-    context 'invalid refresh' do
-      [ 1, 0, 'true', 'false','on','off','string' ].each do |param|
-        let :params do
-          {
-            :refresh => param,
-          }
-          end
-        it 'fails' do
-          expect { subject.call }.to raise_error(/is not a boolean/)
-        end
-      end
-    end
     describe 'duplication' do
       context 'two apt::key resources for same key, different titles' do
         let :pre_condition do

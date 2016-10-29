@@ -344,13 +344,13 @@ Specifies a custom Apt configuration file.
 
 Manages the GPG keys that Apt uses to authenticate packages.
 
-The `apt::key` defined type makes use of the `apt_key` type, but includes extra functionality to help prevent duplicate keys.
+The `apt::key` defined type makes use of the `apt_key` type, but includes extra functionality to help prevent duplicate keys and adds the ensure => refreshed option.
 
 ##### Parameters (all optional)
 
 * `content`: Supplies the entire GPG key. Useful in case the key can't be fetched from a remote location and using a file resource is inconvenient. Valid options: a string. Default: undef.
 
-* `ensure`: Specifies whether the key should exist. Valid options: 'present' and 'absent'. Default: 'present'.
+* `ensure`: Specifies whether the key should exist. Valid options: 'present','refreshed' and 'absent'. Default: 'present'. With 'refreshed', the key will be reinstalled if it is expired.
 
 * `id`: Specifies a GPG key to authenticate Apt package signatures. Valid options: a string containing a key ID (8 or 16 hexadecimal characters, optionally prefixed with "0x") or a full key fingerprint (40 hexadecimal characters). Default: $title.
 

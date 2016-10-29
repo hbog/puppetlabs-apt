@@ -11,7 +11,6 @@ define apt::key (
   $key_source  = undef,
   $key_server  = undef,
   $key_options = undef,
-  $refresh     = false,
 ) {
 
   if $key != undef {
@@ -50,7 +49,7 @@ define apt::key (
   }
 
   validate_re($_id, ['\A(0x)?[0-9a-fA-F]{8}\Z', '\A(0x)?[0-9a-fA-F]{16}\Z', '\A(0x)?[0-9a-fA-F]{40}\Z'])
-  validate_re($ensure, ['\A(absent|present)\Z',])
+  validate_re($ensure, ['\A(absent|present|refreshed)\Z',])
 
   if $_content {
     validate_string($_content)
@@ -68,18 +67,16 @@ define apt::key (
     validate_string($_options)
   }
 
-  validate_bool($refresh)
-
   case $ensure {
-    present: {
+    /^(refreshed|present)$/: {
       if defined(Anchor["apt_key ${_id} absent"]){
         fail("key with id ${_id} already ensured as absent")
       }
 
       if !defined(Anchor["apt_key ${_id} present"]) {
         apt_key { $title:
-          refresh => $refresh,
-          ensure  => $ensure,
+          ensure  => present,
+          refresh => $ensure == 'refreshed',
           id      => $_id,
           source  => $_source,
           content => $_content,
